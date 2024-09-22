@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebGL 3D Objects</title>
+  <style>
+    body { margin: 0; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+  let scene, camera, renderer, controls;
+
+  function init() {
+    // Buat scene
+    scene = new THREE.Scene();
+
+    // Buat kamera perspektif
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 5;
+
+    // Renderer
+    renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Cahaya ambient
+    const ambientLight = new THREE.AmbientLight(0x404040); // Cahaya lembut
+    scene.add(ambientLight);
+
+    // Cahaya directional
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(5, 5, 5).normalize();
+    scene.add(directionalLight);
+
+    // Tambah objek 3D dengan tekstur
+    addGeometriesWithTexture();
+
+    // Render animasi
+    animate();
+  }
+
+  function addGeometriesWithTexture() {
+    const textureLoader = new THREE.TextureLoader();
+    const texture = textureLoader.load('https://threejsfundamentals.org/threejs/resources/images/wall.jpg'); // Contoh tekstur
+
+    // Material dengan tekstur
+    const texturedMaterial = new THREE.MeshStandardMaterial({ map: texture });
+
+    // Buat Cube dengan tekstur
+    const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
+    const cube = new THREE.Mesh(cubeGeometry, texturedMaterial);
+    cube.position.x = -3;
+    scene.add(cube);
+
+    // Buat Cylinder
+    const cylinderGeometry = new THREE.CylinderGeometry(0.5, 0.5, 2, 32);
+    const cylinder = new THREE.Mesh(cylinderGeometry, texturedMaterial);
+    cylinder.position.x = -1;
+    scene.add(cylinder);
+
+    // Buat Cone
+    const coneGeometry = new THREE.ConeGeometry(0.5, 2, 32);
+    const cone = new THREE.Mesh(coneGeometry, texturedMaterial);
+    cone.position.x = 1;
+    scene.add(cone);
+
+    // Buat Lathe Geometry (Bentuk simetri rotasi)
+    const points = [];
+    for (let i = 0; i < 10; i++) {
+      points.push(new THREE.Vector2(Math.sin(i * 0.2) * 0.5 + 0.5, i * 0.2));
+    }
+    const latheGeometry = new THREE.LatheGeometry(points);
+    const lathe = new THREE.Mesh(latheGeometry, texturedMaterial);
+    lathe.position.x = 3;
+    scene.add(lathe);
+  }
+
+  // Animasi (Rotasi objek)
+  function animate() {
+    requestAnimationFrame(animate);
+
+    scene.traverse(function (object) {
+      if (object.isMesh) {
+        object.rotation.y += 0.01; // Rotasi di sumbu Y
+        object.rotation.x += 0.01; // Rotasi di sumbu X
+      }
+    });
+
+    renderer.render(scene, camera);
+  }
+
+  // Inisialisasi WebGL
+  init();
+
+  // Resize window handler
+  window.addEventListener('resize', () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+  });
+</script>
+</body>
+</html>
